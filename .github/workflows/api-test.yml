@@ -1,0 +1,33 @@
+name: Automated API Testing
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman and HTML Extra Reporter
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+
+      - name: Run Newman with Data-Driven Testing
+        run: newman run 2474802016521_HuynhMinhTu_ReqRes.postman_collection.json -e 2474802016521_HuynhMinhTu_ReqRes_Env.postman_environment.json -d users.csv --reporters cli,htmlextra --reporter-htmlextra-export report.html
+
+      - name: Upload HTML Report as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: API-Test-Report
+          path: report.html
